@@ -51,13 +51,21 @@ undistorted = detector.undistort(cal_img)
 ### Pipeline (single images)
 
 My pipeline consists of the following steps:
+
 1. Apply distortion correction
-2. Create a tresholded binary image
-3. Transforming an image to bird's eye view using perspective transform
-4/a. Detect the left and right lane lines separately through computing the historgram of the image in moving windows as an initial step then using highly targeted search on the following images
+
+2. Create a thresholded binary image
+
+3. Transform the thresholded image to bird's eye view using perspective transform
+
+4/a. Detect the left and right lane lines separately through computing the historgram of the transformed image in moving windows as an initial step then using highly targeted search on the following images
+
 4/b. Fit a second order polynomial on both lane lines using a smoothing filter which also takes the previous results into account
+
 4/c. Calculate the curvature of the lane as well as the relative position to the center of the lane
-6. Transform the detected lane area back to the original frame and draw it on top of the original image and annotate it 
+
+5. Transform the detected lane area back to the original frame and draw it on top of the original image and annotate it 
+
 
 The ouputs of these steps can be seen on the following image:
 

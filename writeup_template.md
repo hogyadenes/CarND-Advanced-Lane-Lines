@@ -45,7 +45,7 @@ The results are stored in the object itself. The distortion-correction is then m
 
 undistorted = detector.undistort(cal_img)
 
-[Example 1](writeup_images/undistorted.jpg)
+![Example 1](writeup_images/undistorted.jpg)
 
 
 ### Pipeline (single images)
@@ -69,7 +69,7 @@ My pipeline consists of the following steps:
 
 The ouputs of these steps can be seen on the following image:
 
-
+![Example 1](writeup_images/pipeline.jpg)
 
 
 #### 1. Provide an example of a distortion-corrected image.

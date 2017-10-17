@@ -33,7 +33,7 @@ My writeup is this README.md file
 
 The camera calibration part is in the second cell off my IPython notebook. All the called functions are part of my line_detector class (first cell of my notebook). The function responsible for the calibration part is called "calibrate_camera" and can be used like this:
 
-detector.calibrate_camera(images, (9,6))
+`detector.calibrate_camera(images, (9,6))`
 
 As input, it requires a list of calibration image files and the size of the chessboard image. The rest is calculated as following:
 
@@ -43,7 +43,7 @@ Using `objpoints` and `imgpoints` the camera calibration and distortion coeffici
 
 The results are stored in the line_detector class itself. The distortion-correction is then can be made easily using the "undistort" function of the class.
 
-undistorted = detector.undistort(cal_img)
+`undistorted = detector.undistort(cal_img)`
 
 ![Example 1](writeup_images/undistorted.jpg)
 
@@ -60,7 +60,6 @@ My line lane detecting pipeline consists of the following steps:
     2. Fit a second order polynomial on both lane lines using a smoothing filter which also takes the previous results into account
     3. Calculate the curvature of the lane as well as the relative position to the center of the lane
 5. Transform the detected lane area back to the original frame and draw it on top of the original image and annotate it 
-
 
 The ouputs of these steps can be seen on the following images:
 
@@ -84,7 +83,8 @@ I used a combination of color and gradient thresholds to generate a binary image
     4. directional thresholding on the S channel
     
 These images are then combined according to the following logic:
-combined_binary[(((gradx == 1) & (grady == 1) | (color == 1)) & (direct == 1))] = 1
+
+`combined_binary[(((gradx == 1) & (grady == 1) | (color == 1)) & (direct == 1))] = 1`
 
 ![Example 4](writeup_images/thresholding.jpg)
 

@@ -119,9 +119,9 @@ The radius of the curvature of the lane and the position of the car (with respec
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+As described in section 5 the calculation of the area is done in the `get_results` function and the transformation and drawing is handled in the main function of the class (`process_image`)
 
-![alt text][image6]
+![Example 6](writeup_images/area.jpg)
 
 ---
 
@@ -129,12 +129,34 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+My complete pipline (apart from the camera calibration and the definition of the source and destination points of the perspective transform) looks like this (the `process_image(image)` function):
 
----
+`undistorted = self.undistort(image)`
+`thresholded = self.threshold_image(undistorted)`
+`warped = self.warp_image(thresholded)`
+`(left_fit, right_fit) = self.find_lane_lines(warped)`
+`(radius, position, lane) = self.get_results(warped)`
+`area = np.zeros_like(image)`
+`area[:,:,1] = self.unwarp_image(lane)*255`
+`result = self.weighted_img(area, image, α=0.8, β=0.4, λ=0.)`
+
+Here's a [link to my video result](./output.mp4)
 
 ### Discussion
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+The image filtering techniques I used are great in detecting the lane lines but also quite sensitive to noises. 
+Here are some examples:
+1. If the lane lines are too close to the border of the road (the tarmac) or to the middle of the highway the contrast could easily be as big or even bigger than on the lanes
+2. If the lane line is detoured (eg. for construction purposes) the original lane is usually visible as well - in this case also the colour could be important (which is not used at all at the moment)
+3. Shadows, especially those parallel to the lane lines
+4. Damages or repaired sections on the road
+5. Other cars (especially trucks) that makes impossible to see both lane lines
+6. Strong curves
+
+I also did not factor in video capture problems (over or underexposed images, rapidly changing lighting conditions) which are usually present in a live environment (strong shadows (eg. in a forest) in the middle of the day, tunnels etc)
+
+A more robust solution should probably use some deep learning techniques because those can better adapt to various conditions. A clever parameter optimizer (for tuning the parameters of the filters) could also improve the accuracy of the current setup. 
+
+Apart from the problems in the accuracy department, the biggest problem with the current pipeline is that it can not be used in a real-time environment because it is simply too slow. For speeding it up, limiting the area of the search could be a good starting point (eg. only using the lower half of the images)

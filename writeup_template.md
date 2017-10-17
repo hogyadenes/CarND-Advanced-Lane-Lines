@@ -64,7 +64,7 @@ My line lane detecting pipeline consists of the following steps:
 
 The ouputs of these steps can be seen on the following images:
 
-![Example 1](writeup_images/pipeline.jpg)
+![Example 2](writeup_images/pipeline.jpg)
 
 
 #### 1. Provide an example of a distortion-corrected image.
@@ -73,7 +73,7 @@ The distortion correction was already described and demonstrated in the camera c
 
 An additional example from the test set (test3.jpg):
 
-![Example 2](writeup_images/undistorted2.jpg)
+![Example 3](writeup_images/undistorted2.jpg)
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
@@ -86,47 +86,36 @@ I used a combination of color and gradient thresholds to generate a binary image
 These images are then combined according to the following logic:
 combined_binary[(((gradx == 1) & (grady == 1) | (color == 1)) & (direct == 1))] = 1
 
-![Example 3](writeup_images/thresholding.jpg)
+![Example 4](writeup_images/thresholding.jpg)
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The perspective correction funtion is called `warp_image` in my class. For defining the source points first a separate, `set_roi` function shall be called. The destination points are given through the `get_warp` function which also calculates and stores the resulting transformation in the `M` member of the class. This enables to easily transform any image using the calculated parameters. For this, I created the `warp_image` function.
 
-```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
-```
+The defined frames are the following:
 
-This resulted in the following source and destination points:
+`detector.set_roi((580,460), (700, 460), (1030, 678), (250, 678))`
+`detector.get_warp(test_img, (320, 0))`
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+I carefully defined the source frame so that it's middle point in X dimension is the same as the source image's. This becomes important when calculating the car's relative position to the center of the lane. If the center of the transformed image is also the center of the original image then the calculated offset (on the warped image) does not have to be adjusted.
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear reaonably parallel in the warped image. These are the results on one of the given test images (straight_lines1.jpg):
 
-![alt text][image4]
+![Example 5](writeup_images/warping.jpg)
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+I used the demonstrated sliding window approach in my code and extended it so that it "memorises" the location of the lane line and use a highly targeted search in the following images. It helps a lot in areas where the contrast is low on the thresholded image at the position of the line and there are very strong noise as well (e.g on the bridge where the left lane line is hard to follow but the shadow of the concrete "wall" between the two sides of the highway creates very strong gradients on the thresholded image which could otherwise easily fool the algorithm)
 
-![alt text][image5]
+The lane detector function is called `find_lane_lines`. If there is a previous result, the function returns the results of the targeted search which is called `findnext`. 
+
+Remark: this process could be improved because it is not checked what the results of the `findnext` function are. It is possible that there are no lines to be found. In this case, as a fallback, the process could continue with the histogram searching.
+
+![Example 6](writeup_images/lane_lines.jpg)
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+The radius of the curvature of the lane and the position of the car (with respect to the center) are calculated in the function `get_results`. This function is also responsible to return the area of the lane (the area as an image between the left and right lane lines). This area then will be transformed back to the original frame of the image and drawn on it using the `weighted_img` funtion.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 

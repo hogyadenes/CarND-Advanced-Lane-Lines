@@ -31,11 +31,11 @@ My writeup is this README.md file
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The camera calibration part is in the second cell off my IPython notebook. All the called functions are part of my line_detector class (first cell of my notebook). The function responsible for the calibration part is called "calibrate_camera" and can be used like this:
+The camera calibration part is in the second cell off my IPython notebook. All the called functions are part of my line_detector class (first cell of my notebook). The function responsible for the calibration part is called `calibrate_camera` and can be used like this:
 
 `detector.calibrate_camera(images, (9,6))`
 
-As input, it requires a list of calibration image files and the size of the chessboard image. The rest is calculated as following:
+As input, it takes a list of calibration image files and the size of the chessboard image. The rest is calculated as following:
 
 "object points" are be the (x, y, z) coordinates of the chessboard corners in the world. Assuming the chessboard is fixed on the (x, y) plane at z=0, the object points are the same for each calibration image.  Thus, `objp` is a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time the chessboard corners are detected in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 

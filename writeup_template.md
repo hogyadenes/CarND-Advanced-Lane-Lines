@@ -31,17 +31,17 @@ My writeup is this README.md file
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The camera calibration part is in the second cell off my IPython notebook. All the functions are part of my line_detector class. The function which is responsible for the calibration part is called "calibrate_camera" and can be used like this:
+The camera calibration part is in the second cell off my IPython notebook. All the called functions are part of my line_detector class (first cell of my notebook). The function responsible for the calibration part is called "calibrate_camera" and can be used like this:
 
 detector.calibrate_camera(images, (9,6))
 
 As input, it requires a list of calibration image files and the size of the chessboard image. The rest is calculated as following:
 
-"object points" will be the (x, y, z) coordinates of the chessboard corners in the world. Assuming the chessboard is fixed on the (x, y) plane at z=0, the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time the chessboard corners are detected in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+"object points" are be the (x, y, z) coordinates of the chessboard corners in the world. Assuming the chessboard is fixed on the (x, y) plane at z=0, the object points are the same for each calibration image.  Thus, `objp` is a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time the chessboard corners are detected in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function. 
+Using `objpoints` and `imgpoints` the camera calibration and distortion coefficients can be computed using the `cv2.calibrateCamera()` function. 
 
-The results are stored in the object itself. The distortion-correction is then made by the "undistort" function of the class the results.
+The results are stored in the line_detector class itself. The distortion-correction is then can be made easily using the "undistort" function of the class.
 
 undistorted = detector.undistort(cal_img)
 
@@ -50,38 +50,43 @@ undistorted = detector.undistort(cal_img)
 
 ### Pipeline (single images)
 
-My pipeline consists of the following steps:
+My line lane detecting pipeline consists of the following steps:
 
 1. Apply distortion correction
-
 2. Create a thresholded binary image
-
 3. Transform the thresholded image to bird's eye view using perspective transform
-
-4/a. Detect the left and right lane lines separately through computing the historgram of the transformed image in moving windows as an initial step then using highly targeted search on the following images
-
-4/b. Fit a second order polynomial on both lane lines using a smoothing filter which also takes the previous results into account
-
-4/c. Calculate the curvature of the lane as well as the relative position to the center of the lane
-
+4. 
+    1. Detect the left and right lane lines separately through computing the historgram of the transformed image in moving windows as an initial step then using highly targeted search on the following images
+    2. Fit a second order polynomial on both lane lines using a smoothing filter which also takes the previous results into account
+    3. Calculate the curvature of the lane as well as the relative position to the center of the lane
 5. Transform the detected lane area back to the original frame and draw it on top of the original image and annotate it 
 
 
-The ouputs of these steps can be seen on the following image:
+The ouputs of these steps can be seen on the following images:
 
 ![Example 1](writeup_images/pipeline.jpg)
 
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+The distortion correction was already described and demonstrated in the camera calibration section. 
+
+An additional example from the test set (test3.jpg):
+
+![Example 2](writeup_images/undistorted2.jpg)
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I used a combination of color and gradient thresholds to generate a binary image. The class member function for this is called 'threshold_image'. This function creates a HLS copy of the input (already distortion corrected) image and creates four binary layers:
+    1. gradx (Sobel-X) thresholding on the L channel of the HLS image
+    2. grady (Sobel-Y) thresholding on the L channel of the HLS image
+    3. color thresholding on the S channel of the HLS image 
+    4. directional thresholding on the S channel
+    
+These images are then combined according to the following logic:
+combined_binary[(((gradx == 1) & (grady == 1) | (color == 1)) & (direct == 1))] = 1
 
-![alt text][image3]
+![Example 3](writeup_images/thresholding.jpg)
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 

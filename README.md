@@ -109,6 +109,8 @@ I used the demonstrated sliding window approach in my code and extended it so th
 
 The lane detector function is called `find_lane_lines`. If there is a previous result, the function returns the results of the targeted search which is called `findnext`. 
 
+I also applied a moving average (low pass filter) on the calculated lane line parameters which helped a lot in the wobbly areas because now the detected lane line parameters can only change in small consecutive steps and cannot jump from the one side to the other.
+
 Remark: this process could be improved because it is not checked what the results of the `findnext` function are. It is possible that there are no lines to be found. In this case, as a fallback, the process could continue with the histogram searching.
 
 ![Example 6](writeup_images/lane_lines.jpg)
@@ -116,6 +118,8 @@ Remark: this process could be improved because it is not checked what the result
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
 The radius of the curvature of the lane and the position of the car (with respect to the center) are calculated in the function `get_results`. This function is also responsible to return the area of the lane (the area as an image between the left and right lane lines). This area then will be transformed back to the original frame of the image and drawn on it using the `weighted_img` funtion.
+
+The radius of the curvature of the lane is calculated as the average curvature of the left and right lane lines. 
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
